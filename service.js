@@ -4,8 +4,9 @@
  */
 function Service(name) {
 	this.name = name || null;
-	this.hosts = null;
+	this.hosts = [];
 	this.run = null;
+	this.isGeneric = false;
 }
 
 module.exports = Service;

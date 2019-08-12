@@ -2,27 +2,25 @@
 	Generic / Unknown services
  */
 
-var request = require('request');
+const got = require('got');
+const urlModule = require('url');
 
-var Service = require('../service.js');
+const Service = require('../service.js');
 
-var service = new Service('Generic');
-service.hosts = [];
+let service = new Service('Generic');
+service.isGeneric = true;
 
-service.run = function(url, callback) {
-	var options = {
+service.run = async function(url) {
+	let options = {
 		url: url,
-		followRedirect: false
+		followRedirect: false,
+		throwHttpErrors: false
 	};
-	
-	request(options, function(error, response, body) {
-		if (error || [301, 302].indexOf(response.statusCode) == -1) {
-			callback('URL not recognized as supported');
-			return;
-		}
-		
-		callback(null, response.headers.location);
-	});
+	let response = await got(url, options);
+	if (!([301, 302].includes(response.statusCode)) || !response.headers.location) {
+		throw new Error('URL not recognized as supported');
+	}
+	return (new urlModule.URL(String(response.headers.location), url)).href;
 };
 
 module.exports = service;
